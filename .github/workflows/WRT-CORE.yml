@@ -43,6 +43,10 @@ on:
       WRT_TEST:
         required: false
         type: string
+      WRT_REMOVE_DOCKER:
+        required: false
+        type: boolean
+        default: false
 
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -58,6 +62,7 @@ env:
   WRT_SOURCE: ${{inputs.WRT_SOURCE}}
   WRT_PACKAGE: ${{inputs.WRT_PACKAGE}}
   WRT_TEST: ${{inputs.WRT_TEST}}
+  
 
 jobs:
   core:
@@ -165,15 +170,16 @@ jobs:
       - name: Custom Settings
         run: |
           cd ./wrt/
-
+          # 移除 Docker 相关（如果 WRT_REMOVE_DOCKER 为 true）
+          [ "${{ inputs.WRT_REMOVE_DOCKER }}" = 'true' ] && \
+            sed -i '/luci-app-dockerman/d;/docker-ce/d;/dockerd/d' $GITHUB_WORKSPACE/Config/GENERAL.txt
+          
           if [[ "${WRT_CONFIG,,}" == *"test"* ]]; then
             cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt >> .config
           else
             cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
           fi
-
           $GITHUB_WORKSPACE/Scripts/Settings.sh
-
           make defconfig -j$(nproc) && make clean -j$(nproc)
 
       - name: Download Packages
