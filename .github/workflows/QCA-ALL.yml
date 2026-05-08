@@ -50,4 +50,4 @@ jobs:
       WRT_SOURCE: ${{matrix.SOURCE}}
       WRT_PACKAGE: ${{inputs.PACKAGE}}
       WRT_TEST: ${{inputs.TEST}}
-      WRT_REMOVE_DOCKER: ${{ github.event.inputs.REMOVE_DOCKER || 'true' }}
+      WRT_REMOVE_DOCKER: ${{ github.event.inputs.REMOVE_DOCKER != 'false' }}
